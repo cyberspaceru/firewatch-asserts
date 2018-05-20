@@ -1,1 +1,1 @@
-# firewatch-asserts
+# firewatch-assert
