@@ -1,4 +1,4 @@
-package com.wiley.firewatch.asserts.enities;
+package com.wiley.firewatch.asserts.processing;
 
 import com.google.common.collect.ComparisonChain;
 import lombok.Getter;
@@ -7,9 +7,6 @@ import net.lightbody.bmp.core.har.HarEntry;
 import net.lightbody.bmp.core.har.HarRequest;
 import net.lightbody.bmp.core.har.HarResponse;
 
-/**
- * Created by itatsiy on 4/24/2018.
- */
 @Accessors(fluent = true)
 public class ProcessingEntry implements Comparable<ProcessingEntry> {
     @Getter

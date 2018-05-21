@@ -1,23 +1,20 @@
-package com.wiley.firewatch.asserts.enities;
+package com.wiley.firewatch.asserts.context;
 
-import com.wiley.firewatch.asserts.observers.IObserver;
+import com.wiley.firewatch.core.observers.IObserver;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/**
- * Created by itatsiy on 4/23/2018.
- */
 @Data
 @Accessors(fluent = true)
-public class ObserverMetadata<T> {
+public class FirewatchAssertionObserver<T> {
     private IObserver<T> observer;
     private boolean invert;
 
-    public ObserverMetadata(IObserver<T> observer) {
+    public FirewatchAssertionObserver(IObserver<T> observer) {
         this.observer = observer;
     }
 
-    public ObserverMetadata(IObserver<T> observer, boolean invert) {
+    public FirewatchAssertionObserver(IObserver<T> observer, boolean invert) {
         this.observer = observer;
         this.invert = invert;
     }

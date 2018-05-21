@@ -1,12 +1,12 @@
 package com.wiley.firewatch.asserts;
 
-import com.wiley.firewatch.core.FirewatchConnection;
-import com.wiley.firewatch.asserts.enities.ObserverMetadata;
-import com.wiley.firewatch.asserts.enities.ProcessingEntries;
-import com.wiley.firewatch.asserts.enities.ProcessingEntry;
-import com.wiley.firewatch.asserts.enities.ProcessingMetadata;
+import com.wiley.firewatch.asserts.context.FirewatchAssertionObserver;
 import com.wiley.firewatch.asserts.enums.RelationshipType;
+import com.wiley.firewatch.asserts.processing.ProcessingEntries;
+import com.wiley.firewatch.asserts.processing.ProcessingEntry;
+import com.wiley.firewatch.asserts.processing.ProcessingMetadata;
 import com.wiley.firewatch.asserts.strategies.BaseAssertStrategy;
+import com.wiley.firewatch.core.FirewatchConnection;
 import net.lightbody.bmp.core.har.HarEntry;
 import net.lightbody.bmp.core.har.HarRequest;
 import net.lightbody.bmp.core.har.HarResponse;
@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
  * @param <T> Observable object.
  * @param <S> Current class to build fluent API.
  */
-public class Firewatch<T, S extends FirewatchBlueprint> extends FirewatchBlueprint<T, S> {
-    Firewatch(FirewatchBlueprint parent, RelationshipType relationship) {
+public class FirewatchAssertion<T, S extends FirewatchAssertionBlueprint> extends FirewatchAssertionBlueprint<T, S> {
+    FirewatchAssertion(FirewatchAssertionBlueprint parent, RelationshipType relationship) {
         super(parent, relationship);
     }
 
-    public FirewatchPostProcessing executeWithTimeout() {
+    public FirewatchAssertionResult executeWithTimeout() {
         return executeWithTimeout(Duration.ofSeconds(10));
     }
 
-    public FirewatchPostProcessing executeWithTimeout(Duration duration, String errorMessage) {
+    public FirewatchAssertionResult executeWithTimeout(Duration duration, String errorMessage) {
         long end = System.currentTimeMillis() + duration.toMillis();
         while (end > System.currentTimeMillis()) {
             try {
@@ -45,27 +45,27 @@ public class Firewatch<T, S extends FirewatchBlueprint> extends FirewatchBluepri
         return execute(errorMessage + " [timeout='" + duration.toString() + "']");
     }
 
-    public FirewatchPostProcessing executeWithTimeout(Duration duration) {
+    public FirewatchAssertionResult executeWithTimeout(Duration duration) {
         return executeWithTimeout(duration, "Firewatch assert didn't match.");
     }
 
-    public FirewatchPostProcessing execute() {
+    public FirewatchAssertionResult execute() {
         return execute("Firewatch assert didn't match.");
     }
 
-    public FirewatchPostProcessing execute(String errorMessage) {
+    public FirewatchAssertionResult execute(String errorMessage) {
         List<ProcessingEntries> result = process();
-        if (context().strategy() != null) {
-            context().strategy().execute(result);
+        if (strategy() != null) {
+            strategy().execute(result);
         } else {
             new BaseAssertStrategy(errorMessage).execute(result);
         }
-        return new FirewatchPostProcessing(result);
+        return new FirewatchAssertionResult(result);
     }
 
     private List<ProcessingEntries> process() {
         List<HarEntry> hars = FirewatchConnection.proxyServer().getHar().getLog().getEntries();
-        return buildAssert().entrySet().stream()
+        return buildAssertionsTree().entrySet().stream()
                 .map(fPair -> process(fPair, hars))
                 .collect(Collectors.toList());
     }
@@ -73,7 +73,7 @@ public class Firewatch<T, S extends FirewatchBlueprint> extends FirewatchBluepri
     /**
      * Map the All Firewatches to the HarEntries.
      */
-    private static ProcessingEntries process(Entry<FirewatchRequest, FirewatchResponse> fPair, List<HarEntry> hars) {
+    private static ProcessingEntries process(Entry<FirewatchAssertionRequest, FirewatchAssertionResponse> fPair, List<HarEntry> hars) {
         ProcessingEntries processingEntries = new ProcessingEntries(fPair.getKey(), fPair.getValue());
         hars.stream().map(har -> process(fPair, har)).forEach(processingEntries::add);
         return processingEntries;
@@ -82,42 +82,42 @@ public class Firewatch<T, S extends FirewatchBlueprint> extends FirewatchBluepri
     /**
      * Map the Firewatches Pair to the HarEntry.
      */
-    private static ProcessingEntry process(Entry<FirewatchRequest, FirewatchResponse> fPair, HarEntry har) {
+    private static ProcessingEntry process(Entry<FirewatchAssertionRequest, FirewatchAssertionResponse> fPair, HarEntry har) {
         ProcessingMetadata<HarRequest> request = fPair.getKey() == null ? null : process(fPair.getKey(), har.getRequest());
         ProcessingMetadata<HarResponse> response = fPair.getValue() == null ? null : process(fPair.getValue(), har.getResponse());
         return new ProcessingEntry(har, request, response);
     }
 
     /**
-     * Map the Firewatch to the Har.
+     * Map the FirewatchAssertion to the Har.
      */
-    private static <H> ProcessingMetadata<H> process(FirewatchBlueprint<H, ?> firewatch, H har) {
+    private static <H> ProcessingMetadata<H> process(FirewatchAssertionBlueprint<H, ?> firewatch, H har) {
         ProcessingMetadata<H> processingMetadata = new ProcessingMetadata<>(har);
-        for (ObserverMetadata<H> observerMetadata : firewatch.observers()) {
+        for (FirewatchAssertionObserver<H> firewatchAssertionObserver : firewatch.observers()) {
             try {
-                boolean result = observerMetadata.observer().observe(har);
-                result = observerMetadata.invert() != result;
-                processingMetadata.processingTable().put(observerMetadata, result);
-            } catch (Throwable ignore) {
+                boolean result = firewatchAssertionObserver.observer().observe(har);
+                result = firewatchAssertionObserver.invert() != result;
+                processingMetadata.processingTable().put(firewatchAssertionObserver, result);
+            } catch (Exception ignore) {
                 // ignored
             }
         }
         return processingMetadata;
     }
 
-    private Map<FirewatchRequest, FirewatchResponse> buildAssert() {
-        Map<FirewatchRequest, FirewatchResponse> result = new HashMap<>();
-        FirewatchBlueprint cursor = this;
+    private Map<FirewatchAssertionRequest, FirewatchAssertionResponse> buildAssertionsTree() {
+        Map<FirewatchAssertionRequest, FirewatchAssertionResponse> result = new HashMap<>();
+        FirewatchAssertionBlueprint cursor = this;
         while (cursor != null) {
-            FirewatchRequest request = null;
-            FirewatchResponse response = null;
-            if (cursor instanceof FirewatchRequest) {
-                request = (FirewatchRequest) cursor;
-                if (cursor.child() != null && (cursor.child() instanceof FirewatchResponse && cursor.child().relationship() == RelationshipType.THEN)) {
-                    response = (FirewatchResponse) cursor.child();
+            FirewatchAssertionRequest request = null;
+            FirewatchAssertionResponse response = null;
+            if (cursor instanceof FirewatchAssertionRequest) {
+                request = (FirewatchAssertionRequest) cursor;
+                if (cursor.child() != null && (cursor.child() instanceof FirewatchAssertionResponse && cursor.child().relationship() == RelationshipType.THEN)) {
+                    response = (FirewatchAssertionResponse) cursor.child();
                 }
-            } else if (cursor instanceof FirewatchResponse && cursor.relationship() == RelationshipType.AND) {
-                response = (FirewatchResponse) cursor;
+            } else if (cursor instanceof FirewatchAssertionResponse && cursor.relationship() == RelationshipType.AND) {
+                response = (FirewatchAssertionResponse) cursor;
             }
             if (request != null || response != null) {
                 result.put(request, response);

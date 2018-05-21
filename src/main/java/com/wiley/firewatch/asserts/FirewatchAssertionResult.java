@@ -1,20 +1,17 @@
 package com.wiley.firewatch.asserts;
 
-import com.wiley.firewatch.asserts.enities.ProcessingEntries;
-import com.wiley.firewatch.asserts.enities.ProcessingEntry;
+import com.wiley.firewatch.asserts.processing.ProcessingEntries;
+import com.wiley.firewatch.asserts.processing.ProcessingEntry;
 import net.lightbody.bmp.core.har.HarEntry;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by itatsiy on 5/18/2018.
- */
-public class FirewatchPostProcessing {
+public class FirewatchAssertionResult {
     private final List<ProcessingEntries> processingEntries;
 
-    public FirewatchPostProcessing(List<ProcessingEntries> processingEntries) {
+    FirewatchAssertionResult(List<ProcessingEntries> processingEntries) {
         this.processingEntries = processingEntries;
     }
 
@@ -26,7 +23,7 @@ public class FirewatchPostProcessing {
     }
 
     public Stream<HarEntry> bestEntries() {
-        return getAllBestEntries().stream();
+        return getBestEntries().stream();
     }
 
     public List<HarEntry> getAllBestEntries() {

@@ -1,7 +1,7 @@
-package com.wiley.firewatch.asserts.enities;
+package com.wiley.firewatch.asserts.processing;
 
-import com.wiley.firewatch.asserts.FirewatchRequest;
-import com.wiley.firewatch.asserts.FirewatchResponse;
+import com.wiley.firewatch.asserts.FirewatchAssertionRequest;
+import com.wiley.firewatch.asserts.FirewatchAssertionResponse;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -9,28 +9,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-/**
- * Created by itatsiy on 4/24/2018.
- */
 @Accessors(fluent = true)
 public class ProcessingEntries extends ArrayList<ProcessingEntry> {
     @Getter
-    private final transient FirewatchRequest firewatchRequest;
+    private final transient FirewatchAssertionRequest firewatchRequest;
     @Getter
-    private final transient FirewatchResponse firewatchResponse;
+    private final transient FirewatchAssertionResponse firewatchResponse;
 
-    public ProcessingEntries(int initialCapacity, FirewatchRequest firewatchRequest, FirewatchResponse firewatchResponse) {
+    public ProcessingEntries(int initialCapacity, FirewatchAssertionRequest firewatchRequest, FirewatchAssertionResponse firewatchResponse) {
         super(initialCapacity);
         this.firewatchRequest = firewatchRequest;
         this.firewatchResponse = firewatchResponse;
     }
 
-    public ProcessingEntries(FirewatchRequest firewatchRequest, FirewatchResponse firewatchResponse) {
+    public ProcessingEntries(FirewatchAssertionRequest firewatchRequest, FirewatchAssertionResponse firewatchResponse) {
         this.firewatchRequest = firewatchRequest;
         this.firewatchResponse = firewatchResponse;
     }
 
-    public ProcessingEntries(Collection<? extends ProcessingEntry> c, FirewatchRequest firewatchRequest, FirewatchResponse firewatchResponse) {
+    public ProcessingEntries(Collection<? extends ProcessingEntry> c, FirewatchAssertionRequest firewatchRequest, FirewatchAssertionResponse firewatchResponse) {
         super(c);
         this.firewatchRequest = firewatchRequest;
         this.firewatchResponse = firewatchResponse;

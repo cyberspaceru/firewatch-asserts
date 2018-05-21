@@ -1,8 +1,8 @@
 package com.wiley.firewatch.asserts.strategies;
 
+import com.wiley.firewatch.asserts.processing.ProcessingEntries;
+import com.wiley.firewatch.asserts.processing.ProcessingMetadata;
 import com.wiley.firewatch.core.FirewatchConnection;
-import com.wiley.firewatch.asserts.enities.ProcessingEntries;
-import com.wiley.firewatch.asserts.enities.ProcessingMetadata;
 import lombok.extern.slf4j.Slf4j;
 import net.lightbody.bmp.core.har.HarNameValuePair;
 import net.lightbody.bmp.core.har.HarPostDataParam;
@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Created by itatsiy on 4/24/2018.
- */
 @Slf4j
 public class BaseAssertStrategy implements IAssertStrategy {
 
