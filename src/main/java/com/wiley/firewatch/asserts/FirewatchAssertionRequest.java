@@ -1,7 +1,7 @@
 package com.wiley.firewatch.asserts;
 
 import com.wiley.firewatch.asserts.enums.RelationshipType;
-import com.wiley.firewatch.core.observers.request.*;
+import com.wiley.firewatch.core.observers.har.request.*;
 import com.wiley.firewatch.core.utils.ContentType;
 import com.wiley.firewatch.core.utils.MatchingType;
 import com.wiley.firewatch.core.utils.StringMatcher;

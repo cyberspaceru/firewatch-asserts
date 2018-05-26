@@ -1,10 +1,10 @@
 package com.wiley.firewatch.asserts;
 
 import com.wiley.firewatch.asserts.enums.RelationshipType;
-import com.wiley.firewatch.core.observers.responce.ResponseHeaderObserver;
-import com.wiley.firewatch.core.observers.responce.ResponseJsonContentObserver;
-import com.wiley.firewatch.core.observers.responce.ResponseStatusObserver;
-import com.wiley.firewatch.core.observers.responce.ResponseTextContentObserver;
+import com.wiley.firewatch.core.observers.har.responce.ResponseHeaderObserver;
+import com.wiley.firewatch.core.observers.har.responce.ResponseJsonContentObserver;
+import com.wiley.firewatch.core.observers.har.responce.ResponseStatusObserver;
+import com.wiley.firewatch.core.observers.har.responce.ResponseTextContentObserver;
 import com.wiley.firewatch.core.utils.ContentType;
 import com.wiley.firewatch.core.utils.MatchingType;
 import com.wiley.firewatch.core.utils.StringMatcher;
